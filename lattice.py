@@ -88,6 +88,9 @@ class LatticeMatrix:
         """
         Generate a good basis matrix for a lattice of a given dimension.
         """
+        if not isinstance(dimension, int) or dimension <= 0:
+            raise ValueError("Dimension must be a positive integer.")
+        
         good_basis = Matrix.eye(dimension)    
         return good_basis
 
@@ -130,6 +133,9 @@ class Parallelepiped:
 
 class LatticeCrypto:
     def __init__(self, dimension, modulus=None):
+        if not isinstance(dimension, int) or dimension <= 0:
+            raise ValueError("Dimension must be a positive integer.")
+        
         self.dimension = dimension
         self.modulus = modulus
 
