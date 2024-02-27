@@ -133,11 +133,11 @@ class Parallelepiped:
 
 class LatticeCrypto:
     def __init__(self, dimension, modulus=None):
-        if not isinstance(dimension, int) or dimension <= 0:
-            raise ValueError("Dimension must be a positive integer.")
-        
         self.dimension = dimension
         self.modulus = modulus
+
+        if not isinstance(dimension, int) or dimension <= 0:
+            raise ValueError("Dimension must be a positive integer.")
 
     def generate_keys(self):
         private_basis = LatticeMatrix.generate_good_basis(self.dimension, modulus=None)
@@ -146,7 +146,8 @@ class LatticeCrypto:
         return (public_basis, private_basis)
 
     def generate_noise(self):
-        noise_matrix = Matrix(self.dimension, self.dimension, lambda i, j: random.randint(-5, 5))
+        random_range = 5 * self.dimension 
+        noise_matrix = Matrix(self.dimension, self.dimension, lambda i, j: random.randint(-random_range, random_range))
         if self.modulus:
             noise_matrix = noise_matrix.applyfunc(lambda x: x % self.modulus)
         return noise_matrix
