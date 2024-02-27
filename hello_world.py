@@ -3,7 +3,7 @@ from lattice import LatticeCrypto
 
 def run_hello_world_crypto():
     # Set up the dimension and modulus for the LatticeCrypto system
-    dimension = 2  # Example: 4-dimensional lattice
+    dimension = 4  # Example: 4-dimensional lattice
     modulus = 101  # Example modulus; choose based on your cryptographic needs
 
     # Initialize the LatticeCrypto system with the specified dimension and modulus
