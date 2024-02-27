@@ -32,7 +32,7 @@ class Lattice:
         all_points = list(itertools.product(*grids))
 
         if not all(isinstance(r, tuple) and len(r) == 2 and all(isinstance(x, int) for x in r) and r[0] <= r[1] for r in ranges):
-            raise ValueError("Ranges must be tuples of two integers where the first is less than or equal to the second.")
+            raise ValueError("Ranges must be tuples of two integers where the first is ≤ the second.")
 
         if self.modulus:
             points = [(self.basis_matrix * Matrix(point)).applyfunc(lambda x: x % self.modulus) for point in all_points]
@@ -64,7 +64,7 @@ class LatticeMatrix:
             raise ValueError("Dimension must be a positive integer.")
         
         if not (isinstance(randomness_range, tuple) and len(randomness_range) == 2 and all(isinstance(x, int) for x in randomness_range) and randomness_range[0] <= randomness_range[1]):
-            raise ValueError("Randomness range must be a tuple of two integers where the first is less than or equal to the second.")
+            raise ValueError("Randomness range must be a tuple of two integers where the first is ≤ the second.")
   
         for _ in range(dimension * 2):
             i, j = random.sample(range(dimension), 2)
@@ -83,6 +83,14 @@ class LatticeMatrix:
 
         return bad_matrix
     
+    @staticmethod
+    def generate_good_basis(dimension, modulus=None):
+        """
+        Generate a good basis matrix for a lattice of a given dimension.
+        """
+        good_basis = Matrix.eye(dimension)    
+        return good_basis
+
 
 class Parallelepiped:
     def __init__(self, lattice, vectors):
@@ -118,3 +126,21 @@ class Parallelepiped:
             return all(0 <= sol <= 1 for sol in solution)
         else:
             return False
+
+
+class LatticeCrypto:
+    def __init__(self, dimension, modulus=None):
+        self.dimension = dimension
+        self.modulus = modulus
+
+    def generate_keys(self):
+        private_basis = LatticeMatrix.generate_good_basis(self.dimension, modulus=None)
+        noise = self.generate_noise()
+        public_basis = private_basis + noise
+        return (public_basis, private_basis)
+
+    def generate_noise(self):
+        noise_matrix = Matrix(self.dimension, self.dimension, lambda i, j: random.randint(-5, 5))
+        if self.modulus:
+            noise_matrix = noise_matrix.applyfunc(lambda x: x % self.modulus)
+        return noise_matrix
