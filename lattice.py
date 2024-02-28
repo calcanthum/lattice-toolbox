@@ -56,6 +56,7 @@ class LatticeMatrix:
         """
         Generate a 'bad' basis matrix for an identity lattice of a given dimension
         while ensuring the transformations are unimodular (determinant is ±1).
+        WARNING: The generated vector lengths are very close to the modulus value in the current implementation.
         """
         identity_matrix = Matrix.eye(dimension)
         bad_matrix = identity_matrix.copy()
