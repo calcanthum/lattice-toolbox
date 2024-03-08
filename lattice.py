@@ -75,25 +75,27 @@ class LatticeMatrix:
                     new_value = bad_matrix[i, k] + shear_factor * bad_matrix[j, k]
                     bad_matrix[i, k] = new_value % modulus if modulus is not None else new_value
 
-        # Ensure the determinant is ±1
+        # Adjust lengths of vectors to avoid being too close to modulus
+        for i in range(dimension):
+            for j in range(dimension):
+                adjustment = random.randint(1, modulus // 10)
+                # Randomly decide to add or subtract to avoid patterns
+                if random.choice([True, False]):
+                    bad_matrix[i, j] = (bad_matrix[i, j] + adjustment) % modulus
+                else:
+                    bad_matrix[i, j] = (bad_matrix[i, j] - adjustment) % modulus
+
+        # Ensure the determinant is ±1, adjust as necessary
         while bad_matrix.det() not in [1, -1]:
-            if modulus is not None:
-                bad_matrix = Matrix(dimension, dimension, lambda i, j: random.randint(-modulus, modulus - 1) % modulus)
-            else:
-                bad_matrix = Matrix(dimension, dimension, lambda i, j: random.randint(-10, 9))
+            for i in range(dimension):
+                for j in range(dimension):
+                    adjustment = random.randint(1, modulus // 10)
+                    if random.choice([True, False]):
+                        bad_matrix[i, j] = (bad_matrix[i, j] + adjustment) % modulus
+                    else:
+                        bad_matrix[i, j] = (bad_matrix[i, j] - adjustment) % modulus
 
         return bad_matrix
-    
-    @staticmethod
-    def generate_good_basis(dimension, modulus=None):
-        """
-        Generate a good basis matrix for a lattice of a given dimension.
-        """
-        if not isinstance(dimension, int) or dimension <= 0:
-            raise ValueError("Dimension must be a positive integer.")
-        
-        good_basis = Matrix.eye(dimension)    
-        return good_basis
 
 
 class Parallelepiped:
