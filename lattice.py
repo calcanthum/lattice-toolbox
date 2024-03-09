@@ -80,7 +80,13 @@ class LatticeMatrix:
                 bad_matrix[j, i] = lattice_point[j]
         
         return bad_matrix
-
+    
+    @staticmethod
+    def generate_good_basis(dimension, modulus=None):
+        """
+        Generate a 'good' basis matrix, which is simply the identity matrix for the lattice of a given dimension.
+        """
+        return Matrix.eye(dimension)
 
 class Parallelepiped:
     def __init__(self, lattice, vectors):
