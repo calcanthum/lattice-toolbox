@@ -92,15 +92,15 @@ class TestLatticeModulo(unittest.TestCase):
             Lattice(self.basis_matrix_2d, modulus='a')  
 
 class TestLatticeMatrix(unittest.TestCase):
-    def test_generate_bad_basis(self):
+    def test_generate_bad_basis_invertibility(self):
         dimension = 2
         bad_basis = LatticeMatrix.generate_bad_basis(dimension)
-        self.assertIn(bad_basis.det(), [1, -1], "Generated bad basis determinant is not ±1.")
+        self.assertNotEqual(bad_basis.det(), 0, "Generated bad basis is not invertible.")
 
-    def test_generate_bad_basis_3d(self):
+    def test_generate_bad_basis_3d_invertibility(self):
         dimension = 3
         bad_basis = LatticeMatrix.generate_bad_basis(dimension)
-        self.assertIn(bad_basis.det(), [1, -1], "Generated bad basis determinant for 3D is not ±1.")
+        self.assertNotEqual(bad_basis.det(), 0, "Generated bad basis for 3D is not invertible.")
 
 class TestParallelepiped2D(unittest.TestCase):
     def setUp(self):

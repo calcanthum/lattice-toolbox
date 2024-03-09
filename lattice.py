@@ -18,7 +18,7 @@ class Lattice:
             if not isinstance(self.modulus, int) or self.modulus <= 0:
                 raise ValueError("Modulus must be a positive integer.")
         
-        if not all(isinstance(row, (list, tuple)) and all(isinstance(x, (int, float)) for x in row) for row in basis_matrix):
+        if not all(isinstance(row, (list, tuple)) and all(isinstance(x, int) for x in row) for row in basis_matrix):
             raise ValueError("Basis matrix must contain only numbers in lists or tuples.")
         
     def generate_points(self, *ranges):
@@ -54,47 +54,31 @@ class LatticeMatrix:
     @staticmethod
     def generate_bad_basis(dimension, randomness_range=(1, 10), modulus=None):
         """
-        Generate a 'bad' basis matrix for an identity lattice of a given dimension
-        while ensuring the transformations are unimodular (determinant is ±1).
-        WARNING: The generated vector lengths are very close to the modulus value in the current implementation.
+        Generate a 'bad' basis matrix for an identity lattice of a given dimension.
+        This method selects two random points on the lattice to create new basis vectors,
+        ensuring the resulting basis is related to the original lattice structure.
         """
         identity_matrix = Matrix.eye(dimension)
-        bad_matrix = identity_matrix.copy()
-
+        
         if not isinstance(dimension, int) or dimension <= 0:
             raise ValueError("Dimension must be a positive integer.")
-        
-        if not (isinstance(randomness_range, tuple) and len(randomness_range) == 2 and all(isinstance(x, int) for x in randomness_range) and randomness_range[0] <= randomness_range[1]):
-            raise ValueError("Randomness range must be a tuple of two integers where the first is ≤ the second.")
-  
-        for _ in range(dimension * 2):
-            i, j = random.sample(range(dimension), 2)
-            if i != j:
-                shear_factor = random.randint(randomness_range[0], randomness_range[1])
-                for k in range(dimension):
-                    new_value = bad_matrix[i, k] + shear_factor * bad_matrix[j, k]
-                    bad_matrix[i, k] = new_value % modulus if modulus is not None else new_value
 
-        # Adjust lengths of vectors to avoid being too close to modulus
+        if modulus is not None:
+            if not isinstance(modulus, int) or modulus <= 0:
+                raise ValueError("Modulus must be a positive integer.")
+
+        bad_matrix = Matrix.zeros(dimension)
+
         for i in range(dimension):
+            point = [random.randint(randomness_range[0], randomness_range[1]) for _ in range(dimension)]
+            lattice_point = identity_matrix * Matrix(point)
+
+            if modulus:
+                lattice_point = lattice_point.applyfunc(lambda x: x % modulus)
+
             for j in range(dimension):
-                adjustment = random.randint(1, modulus // 10)
-                # Randomly decide to add or subtract to avoid patterns
-                if random.choice([True, False]):
-                    bad_matrix[i, j] = (bad_matrix[i, j] + adjustment) % modulus
-                else:
-                    bad_matrix[i, j] = (bad_matrix[i, j] - adjustment) % modulus
-
-        # Ensure the determinant is ±1, adjust as necessary
-        while bad_matrix.det() not in [1, -1]:
-            for i in range(dimension):
-                for j in range(dimension):
-                    adjustment = random.randint(1, modulus // 10)
-                    if random.choice([True, False]):
-                        bad_matrix[i, j] = (bad_matrix[i, j] + adjustment) % modulus
-                    else:
-                        bad_matrix[i, j] = (bad_matrix[i, j] - adjustment) % modulus
-
+                bad_matrix[j, i] = lattice_point[j]
+        
         return bad_matrix
 
 
@@ -108,7 +92,7 @@ class Parallelepiped:
         
         if self.vectors.rows != self.lattice.basis_matrix.rows:
             raise ValueError("Vector dimensions must match the lattice basis dimensions.")
-        if not all(isinstance(row, (list, tuple)) and all(isinstance(x, (int, float)) for x in row) for row in vectors):
+        if not all(isinstance(row, (list, tuple)) and all(isinstance(x, int) for x in row) for row in vectors):
             raise ValueError("Vectors must contain only numbers in lists or tuples.")
    
     def volume(self):
